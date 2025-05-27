@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+
+<body>
+  <div class="app-container">
+    <h1>Expense Tracker</h1>
+    <br>
+
+    <form id="expense-form">
+      <input type="date" id="date" required />
+      <select id="type" required>
+        <option value="">Select Type</option>
+        <option value="Rent">Rent</option>
+        <option value="Phone">Phone</option>
+        <option value="Electricity">Electricity</option>
+        <option value="Movies">Movies</option>
+        <option value="Food">Food</option>
+        <option value="Medical">Medical</option>
+        <option value="Grooming">Grooming</option>
+        <option value="Daily Commute">Daily Commute</option>
+        <option value="Hometown Commute">Hometown Commute</option>
+        <option value="Groceries">Groceries</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Miscellaneous">Miscellaneous</option>
+      </select>
+      <input type="number" id="amount" placeholder="Amount (₹)" required />
+      <textarea id="comment" class="comment-box" placeholder="Comment for Miscellaneous"></textarea>
+      <button type="submit">Add Expense</button>
+    </form>
+
+
+    <div class="table-container">
+      <table id="expense-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount (₹)</th>
+            <th>Comment</th>
+            <th>Action</th> <!-- New column -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows inserted by JS -->
+        </tbody>
+      </table>
+    </div>
+    <button id="download-csv" style="margin: 1rem 0;">Download CSV</button>
+
+    <div class="chart-container">
+      <h1>Bar chart</h1>
+      <div id="monthlyChart"></div>
+
+      <h1>Line Chart</h1>
+      <div style="margin-bottom: 1rem;">
+        <label for="filter-type">Type:</label>
+        <select id="filter-type"></select>
+        <label for="filter-month" style="margin-left: 1rem;">Month:</label>
+        <select id="filter-month"></select>
+      </div>
+      <div id="trendChart"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="./script.js">  </script>
+
+</body>
+
+</html>
