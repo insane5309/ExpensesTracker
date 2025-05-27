@@ -5,7 +5,7 @@ const expenseTableBody = document.querySelector('#expense-table tbody');
 
 const filterTypeSelect = document.getElementById('filter-type');
 const filterMonthSelect = document.getElementById('filter-month');
-const link = `https://expensetracker-uhcb.onrender.com/api`
+const link = `https://expensetracker-uhcb.onrender.com/api`;
 
 let expenses = [];
 fetchExpenses();
