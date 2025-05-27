@@ -13,6 +13,7 @@ fetchExpenses();
 // Fetch expenses from the API
 async function fetchExpenses() {
   try {
+    alert("welcome!");
     const response = await fetch(`${link}/expenses`);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
