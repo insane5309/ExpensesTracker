@@ -1,13 +1,11 @@
-
-
 class ExpenseTracker {
     constructor() {
         // this.API_BASE_URL = 'http://localhost:3000/api';
         this.API_BASE_URL = 'https://expensetracker-uhcb.onrender.com/api';
         this.expenses = [];
         this.isLoading = false;
-        
-        
+
+
         this.elements = {
             form: document.getElementById('expense-form'),
             typeField: document.getElementById('type'),
@@ -15,9 +13,10 @@ class ExpenseTracker {
             expenseTableBody: document.querySelector('#expense-table tbody'),
             filterTypeSelect: document.getElementById('filter-type'),
             filterMonthSelect: document.getElementById('filter-month'),
-            downloadButton: document.getElementById('download-csv')
+            downloadButton: document.getElementById('download-csv'),
+            fileSubmitForm: document.getElementById('fileSubmitForm')
         };
-        
+
         this.init();
     }
 
@@ -29,18 +28,20 @@ class ExpenseTracker {
 
 
     bindEvents() {
-        
+
         this.elements.form.addEventListener('submit', this.handleFormSubmit.bind(this));
-        
-        
+
+
         this.elements.typeField.addEventListener('change', this.handleTypeChange.bind(this));
-        
-        
+
+
         this.elements.filterTypeSelect.addEventListener('change', this.handleFilterChange.bind(this));
         this.elements.filterMonthSelect.addEventListener('change', this.handleFilterChange.bind(this));
-        
-        
+
+
         this.elements.downloadButton.addEventListener('click', this.downloadCSV.bind(this));
+        this.elements.fileSubmitForm.addEventListener('submit', this.handleFileUpload.bind(this));
+
     }
 
 
@@ -56,29 +57,29 @@ class ExpenseTracker {
 
     showError(message) {
         console.error('Error:', message);
-        
+
         alert(`Error: ${message}`);
     }
 
 
     showSuccess(message) {
         console.log('Success:', message);
-        
+
     }
 
     async fetchExpenses() {
         try {
             this.setLoading(true);
             const response = await fetch(`${this.API_BASE_URL}/expenses`);
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to fetch expenses: ${response.status} ${response.statusText}`);
             }
-            
+
             this.expenses = await response.json();
             this.updateUI();
             this.showSuccess('Expenses loaded successfully');
-            
+
         } catch (error) {
             this.showError(`Failed to load expenses: ${error.message}`);
         } finally {
@@ -106,7 +107,7 @@ class ExpenseTracker {
             this.expenses.push(newExpense);
             this.updateUI();
             this.showSuccess('Expense added successfully');
-            
+
         } catch (error) {
             this.showError(`Failed to add expense: ${error.message}`);
         } finally {
@@ -128,7 +129,7 @@ class ExpenseTracker {
             this.expenses.splice(index, 1);
             this.updateUI();
             this.showSuccess('Expense removed successfully');
-            
+
         } catch (error) {
             this.showError(`Failed to remove expense: ${error.message}`);
         }
@@ -137,7 +138,7 @@ class ExpenseTracker {
 
     async handleFormSubmit(event) {
         event.preventDefault();
-        
+
         if (this.isLoading) return;
 
         const formData = new FormData(this.elements.form);
@@ -145,19 +146,19 @@ class ExpenseTracker {
             date: formData.get('date') || document.getElementById('date').value,
             type: this.elements.typeField.value,
             amount: parseFloat(document.getElementById('amount').value),
-            comment: this.elements.typeField.value === 'Miscellaneous' 
-                ? document.getElementById('comment').value.trim() 
+            comment: this.elements.typeField.value === 'Miscellaneous'
+                ? document.getElementById('comment').value.trim()
                 : ''
         };
 
-        
+
         if (!this.validateExpenseData(expenseData)) {
             return;
         }
 
         await this.addExpense(expenseData);
-        
-        
+
+
         if (!this.isLoading) {
             this.elements.form.reset();
             this.elements.commentBox.style.display = 'none';
@@ -170,17 +171,17 @@ class ExpenseTracker {
             this.showError('Please select a date');
             return false;
         }
-        
+
         if (!data.type) {
             this.showError('Please select an expense type');
             return false;
         }
-        
+
         if (!data.amount || data.amount <= 0) {
             this.showError('Please enter a valid amount');
             return false;
         }
-        
+
         return true;
     }
 
@@ -188,7 +189,7 @@ class ExpenseTracker {
     handleTypeChange() {
         const isMiscellaneous = this.elements.typeField.value === 'Miscellaneous';
         this.elements.commentBox.style.display = isMiscellaneous ? 'block' : 'none';
-        
+
         if (isMiscellaneous) {
             this.elements.commentBox.focus();
         }
@@ -198,7 +199,7 @@ class ExpenseTracker {
     handleFilterChange() {
         const selectedType = this.elements.filterTypeSelect.value;
         const selectedMonth = this.elements.filterMonthSelect.value;
-        
+
         if (selectedType && selectedMonth) {
             this.drawTrendChart(selectedType, selectedMonth);
         }
@@ -214,7 +215,7 @@ class ExpenseTracker {
 
     renderExpenseTable() {
         if (!this.elements.expenseTableBody) return;
-        
+
         this.elements.expenseTableBody.innerHTML = '';
 
         if (this.expenses.length === 0) {
@@ -240,12 +241,12 @@ class ExpenseTracker {
             this.elements.expenseTableBody.appendChild(tr);
         });
 
-        
+
         this.elements.expenseTableBody.querySelectorAll('.remove-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const expenseId = e.target.dataset.id;
                 const index = parseInt(e.target.dataset.index);
-                
+
                 if (confirm('Are you sure you want to remove this expense?')) {
                     this.removeExpense(expenseId, index);
                 }
@@ -258,7 +259,7 @@ class ExpenseTracker {
 
         const types = [...new Set(this.expenses.map(expense => expense.type))].sort();
         this.elements.filterTypeSelect.innerHTML = '';
-        
+
         types.forEach(type => {
             const option = document.createElement('option');
             option.value = type;
@@ -266,13 +267,13 @@ class ExpenseTracker {
             this.elements.filterTypeSelect.appendChild(option);
         });
 
-        
-        const months = [...new Set(this.expenses.map(expense => 
+
+        const months = [...new Set(this.expenses.map(expense =>
             d3.timeFormat("%Y-%m")(new Date(expense.date))
         ))].sort();
-        
+
         this.elements.filterMonthSelect.innerHTML = '';
-        
+
         months.forEach(month => {
             const option = document.createElement('option');
             option.value = month;
@@ -280,7 +281,7 @@ class ExpenseTracker {
             this.elements.filterMonthSelect.appendChild(option);
         });
 
-        
+
         const currentMonth = d3.timeFormat("%Y-%m")(new Date());
         if (months.includes(currentMonth)) {
             this.elements.filterMonthSelect.value = currentMonth;
@@ -288,7 +289,7 @@ class ExpenseTracker {
             this.elements.filterMonthSelect.value = months[months.length - 1];
         }
 
-        
+
         if (types.length > 0) {
             this.elements.filterTypeSelect.value = types[0];
         }
@@ -296,12 +297,12 @@ class ExpenseTracker {
 
     updateCharts() {
         if (this.expenses.length === 0) return;
-        
+
         this.drawMonthlyBarChart();
-        
+
         const selectedType = this.elements.filterTypeSelect.value;
         const selectedMonth = this.elements.filterMonthSelect.value;
-        
+
         if (selectedType && selectedMonth) {
             this.drawTrendChart(selectedType, selectedMonth);
         }
@@ -324,13 +325,13 @@ class ExpenseTracker {
 
         const currentYear = new Date().getFullYear();
         const allMonths = d3.timeMonths(
-            new Date(currentYear, 0, 1), 
+            new Date(currentYear, 0, 1),
             new Date(currentYear + 1, 0, 1)
         ).map(d => d3.timeFormat("%Y-%m")(d));
 
         const types = [...new Set(this.expenses.map(d => d.type))];
 
-        
+
         const nested = d3.rollup(
             expensesParsed,
             v => d3.rollup(v, vv => d3.sum(vv, d => d.amount), d => d.type),
@@ -349,7 +350,7 @@ class ExpenseTracker {
         const stack = d3.stack().keys(types);
         const stackedData = stack(data);
 
-        
+
         const margin = { top: 40, right: 150, bottom: 60, left: 60 };
         const width = 900;
         const height = 450;
@@ -359,7 +360,7 @@ class ExpenseTracker {
             .attr("viewBox", `0 0 ${width} ${height}`)
             .attr("preserveAspectRatio", "xMidYMid meet");
 
-        
+
         const x = d3.scaleBand()
             .domain(allMonths)
             .range([margin.left, width - margin.right])
@@ -372,7 +373,7 @@ class ExpenseTracker {
 
         const color = d3.scaleOrdinal(d3.schemeCategory10).domain(types);
 
-        
+
         const tooltip = chartContainer
             .append("div")
             .attr("class", "chart-tooltip")
@@ -385,10 +386,10 @@ class ExpenseTracker {
             .style("pointer-events", "none")
             .style("opacity", 0);
 
-        
+
         svg.append("g")
             .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(x).tickFormat(d => 
+            .call(d3.axisBottom(x).tickFormat(d =>
                 d3.timeFormat("%b")(d3.timeParse("%Y-%m")(d))
             ))
             .selectAll("text")
@@ -399,7 +400,7 @@ class ExpenseTracker {
             .attr("transform", `translate(${margin.left},0)`)
             .call(d3.axisLeft(y));
 
-        
+
         svg.selectAll("g.layer")
             .data(stackedData)
             .enter()
@@ -421,14 +422,14 @@ class ExpenseTracker {
                     ${d.data.month}<br/>
                     ₹${(d[1] - d[0]).toFixed(2)}
                 `)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 10) + "px");
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px");
             })
             .on("mouseout", () => {
                 tooltip.transition().duration(300).style("opacity", 0);
             });
 
-        
+
         const legend = svg.append("g")
             .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`);
 
@@ -463,8 +464,8 @@ class ExpenseTracker {
             return;
         }
 
-        
-        const expensesByDay = d3.group(filteredExpenses, d => 
+
+        const expensesByDay = d3.group(filteredExpenses, d =>
             parseInt(d3.timeFormat("%d")(new Date(d.date)))
         );
 
@@ -474,7 +475,7 @@ class ExpenseTracker {
             expenses
         })).sort((a, b) => a.day - b.day);
 
-        
+
         const margin = { top: 30, right: 30, bottom: 40, left: 60 };
         const width = 800;
         const height = 400;
@@ -484,7 +485,7 @@ class ExpenseTracker {
             .attr("viewBox", `0 0 ${width} ${height}`)
             .attr("preserveAspectRatio", "xMidYMid meet");
 
-        
+
         const x = d3.scaleLinear()
             .domain([1, 31])
             .range([margin.left, width - margin.right]);
@@ -494,7 +495,7 @@ class ExpenseTracker {
             .nice()
             .range([height - margin.bottom, margin.top]);
 
-        
+
         svg.append("g")
             .attr("transform", `translate(0,${height - margin.bottom})`)
             .call(d3.axisBottom(x).ticks(31));
@@ -503,7 +504,7 @@ class ExpenseTracker {
             .attr("transform", `translate(${margin.left},0)`)
             .call(d3.axisLeft(y));
 
-        
+
         const line = d3.line()
             .x(d => x(d.day))
             .y(d => y(d.total))
@@ -516,7 +517,7 @@ class ExpenseTracker {
             .attr("stroke-width", 2)
             .attr("d", line);
 
-        
+
         const tooltip = chartContainer
             .append("div")
             .attr("class", "chart-tooltip")
@@ -529,7 +530,7 @@ class ExpenseTracker {
             .style("pointer-events", "none")
             .style("opacity", 0);
 
-        
+
         svg.selectAll("circle")
             .data(dailyTotals)
             .enter()
@@ -545,14 +546,14 @@ class ExpenseTracker {
                 const details = d.expenses
                     .map(exp => `₹${exp.amount}${exp.comment ? ` (${exp.comment})` : ''}`)
                     .join('<br/>');
-                
+
                 tooltip.html(`
                     <strong>Day ${d.day}</strong><br/>
                     Total: ₹${d.total.toFixed(2)}<br/>
                     ${details}
                 `)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 10) + "px");
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px");
             })
             .on("mouseout", () => {
                 tooltip.transition().duration(300).style("opacity", 0);
@@ -580,7 +581,7 @@ class ExpenseTracker {
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
-        
+
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
@@ -593,7 +594,7 @@ class ExpenseTracker {
         }
     }
 
-    
+
     formatDate(dateString) {
         return new Date(dateString).toLocaleDateString('en-IN');
     }
@@ -605,57 +606,134 @@ class ExpenseTracker {
         return div.innerHTML;
     }
 
-    async uploadFile(event) {
-  event.preventDefault();
+    async handleFileUpload(event) {
+        event.preventDefault();
+        const fileInput = document.getElementById('pdfInput');
+        const file = fileInput.files[0];
+        if (file.type==='application/pdf') {
+            this.handlePDFUpload(file);
+        } else {
+            this.handleCSVUpload(file);
+        }
+    };
 
-  const fileInput = document.getElementById('pdfInput');
-  const file = fileInput.files[0];
+    async handlePDFUpload(file){
 
-  if (!file) {
-    alert('Please select a PDF file.');
-    return;
-  }
+        if (!file) {
+            alert('Please select a PDF file.');
+            return;
+        }
 
-  const formData = new FormData();
-  formData.append('pdf', file);
+        const formData = new FormData();
+        formData.append('pdf', file);
 
-  try {
-    const response = await fetch('/upload', {
-      method: 'POST',
-      body: formData
-    });
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/upload`, {
+                method: 'POST',
+                body: formData
+            });
 
-    if (!response.ok) {
-      throw new Error('Failed to extract data from PDF.');
+
+            if (!response.ok) {
+                throw new Error('Failed to extract data from PDF.');
+            }
+
+            const result = await response.json();
+
+            const csvContent = this.jsonToCSV(result);
+            const fileName = `bank-transactions-${new Date().toISOString().split('T')[0]}.csv`;
+            this.downloadCSV(csvContent, fileName);
+        }
+        catch (err) {
+            document.getElementById('output').textContent = 'Error: ' + err.message;
+        }
     }
 
-    const result = await response.json();
-    document.getElementById('output').textContent = JSON.stringify(result, null, 2);
-    alert(result);
-      console.log(result);
-  } catch (err) {
-    document.getElementById('output').textContent = 'Error: ' + err.message;
-  }
-};
+
+    jsonToCSV(data) {
+        if (!Array.isArray(data) || data.length === 0) return '';
+
+        const headers = Object.keys(data[0]);
+        const rows = data.map(row =>
+            headers.map(field =>
+                `"${String(row[field] ?? '').replace(/"/g, '""')}"`
+            ).join(',')
+        );
+
+        return [headers.join(','), ...rows].join('\n');
+    }
+
+
+    downloadCSV(csvContent, fileName) {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const anchor = document.createElement('a');
+        anchor.setAttribute('href', url);
+        anchor.setAttribute('download', fileName);
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+
+        URL.revokeObjectURL(url);
+    }
+
+    async handleCSVUpload(file) {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+
+        if (lines.length < 2) {
+            this.showError('CSV file must contain headers and at least one data row.');
+            return;
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+
+        // Validate expected headers
+        const expectedHeaders = ['date', 'type', 'amount', 'comment'];
+        const isValid = expectedHeaders.every(h => headers.includes(h));
+        if (!isValid) {
+            this.showError('CSV must include: date, type, amount, comment');
+            return;
+        }
+
+        const promises = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.trim());
+            if (values.length !== headers.length) continue; // Skip malformed rows
+
+            const record = {};
+            headers.forEach((header, idx) => {
+                record[header] = values[idx];
+            });
+
+            // Ensure amount is a number
+            record.amount = parseFloat(record.amount);
+
+            // Skip invalid amounts
+            if (isNaN(record.amount) || record.amount <= 0) continue;
+
+            console.log(record);
+            promises.push(this.addExpense(record));
+        }
+
+        // Wait for all requests to finish
+        try {
+            this.setLoading(true);
+            await Promise.all(promises);
+            this.showSuccess('All expenses uploaded successfully.');
+        } catch (err) {
+            this.showError(`Some expenses failed to upload: ${err.message}`);
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("uploadForm");
-  const fileInput = document.getElementById("pdfInput");
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault(); // Prevent actual form submission
-
-    const file = fileInput.files[0];
-    if (!file || file.type !== "application/pdf") {
-      alert("Please select a valid PDF file.");
-      return;
-    }
-
-    uploadFile(file); // Call your upload logic
-  });
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     new ExpenseTracker();
