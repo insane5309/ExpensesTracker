@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Expense Tracker App</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./stylesheet.css">
 
 </head>
 
@@ -37,6 +37,10 @@
       <button type="submit">Add Expense</button>
     </form>
 
+    <form id="uploadForm">
+    <input type="file" id="pdfInput" name="pdf" accept="application/pdf" required />
+    <button type="submit">Upload & Extract</button>
+  </form>
 
     <div class="table-container">
       <table id="expense-table">
@@ -71,9 +75,8 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="./script.js">  </script>
+<script src="./script.js"> </script>
 
 </body>
 
