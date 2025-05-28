@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Expense Tracker App</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./stylesheet.css">
 
 </head>
 
@@ -14,7 +14,9 @@
   <div class="app-container">
     <h1>Expense Tracker</h1>
     <br>
-    <h1 id="output"></h1>
+
+    <p id="output"></p>
+
     <form id="expense-form">
       <input type="date" id="date" required />
       <select id="type" required>
@@ -37,9 +39,9 @@
       <button type="submit">Add Expense</button>
     </form>
 
-    <form id="uploadForm">
-    <input type="file" id="pdfInput" name="pdf" accept="application/pdf" required />
-    <button type="submit" click="uploadFile(this)">Upload & Extract</button>
+    <form id="fileSubmitForm">
+    <input type="file" id="pdfInput" name="pdf" required />
+    <button type="submit" id="uploadFile">Update & Extract</button>
   </form>
 
     <div class="table-container">
