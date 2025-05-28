@@ -2,8 +2,8 @@
 
 class ExpenseTracker {
     constructor() {
-        this.API_BASE_URL = 'http://localhost:3000/api';
-        // this.API_BASE_URL = 'https://expensetracker-uhcb.onrender.com/api';
+        // this.API_BASE_URL = 'http://localhost:3000/api';
+        this.API_BASE_URL = 'https://expensetracker-uhcb.onrender.com/api';
         this.expenses = [];
         this.isLoading = false;
         
