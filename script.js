@@ -631,6 +631,8 @@ class ExpenseTracker {
 
     const result = await response.json();
     document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+    alert(result);
+      console.log(result);
   } catch (err) {
     document.getElementById('output').textContent = 'Error: ' + err.message;
   }
