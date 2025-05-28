@@ -640,6 +640,23 @@ class ExpenseTracker {
 
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("uploadForm");
+  const fileInput = document.getElementById("pdfInput");
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault(); // Prevent actual form submission
+
+    const file = fileInput.files[0];
+    if (!file || file.type !== "application/pdf") {
+      alert("Please select a valid PDF file.");
+      return;
+    }
+
+    uploadFile(file); // Call your upload logic
+  });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     new ExpenseTracker();
 });
